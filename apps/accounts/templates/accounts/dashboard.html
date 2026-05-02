@@ -25,7 +25,7 @@
   {% endif %}
 
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body p-4">
           <div class="text-muted small text-uppercase">Организации</div>
@@ -34,7 +34,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body p-4">
           <div class="text-muted small text-uppercase">Расчёты</div>
@@ -43,7 +43,16 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="text-muted small text-uppercase">Документы</div>
+          <div class="display-6 fw-semibold">{{ document_count }}</div>
+          <p class="text-muted mb-0">Созданные шаблоны и готовые тексты.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body p-4">
           <div class="text-muted small text-uppercase">Профиль</div>
@@ -55,7 +64,7 @@
   </div>
 
   <div class="row g-4">
-    <div class="col-lg-6">
+    <div class="col-lg-4">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body p-4">
           <h2 class="h5 mb-3">Ваши организации</h2>
@@ -75,7 +84,7 @@
       </div>
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-4">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body p-4">
           <h2 class="h5 mb-3">Последние расчёты</h2>
@@ -84,17 +93,45 @@
               {% for calculation in calculations %}
                 <div class="list-group-item px-0">
                   <div class="d-flex justify-content-between align-items-center">
-                    <div>
+                    <div class="min-w-0">
                       <div class="fw-semibold">{{ calculation.title }}</div>
-                      <small class="text-muted">{{ calculation.created_at|date:"d.m.Y H:i" }}</small>
+                      {% if calculation.result_summary %}
+                        <small class="text-muted d-block text-truncate">{{ calculation.result_summary }}</small>
+                      {% endif %}
+                      <small class="text-muted d-block">{{ calculation.created_at|date:"d.m.Y H:i" }}</small>
                     </div>
-                    <span class="badge text-bg-light">{{ calculation.calculation_type|default:"Расчёт" }}</span>
+                    <span class="badge text-bg-light text-nowrap">{{ calculation.get_calculation_type_display }}</span>
                   </div>
                 </div>
               {% endfor %}
             </div>
           {% else %}
             <div class="alert alert-light mb-0">Сохранённые расчёты появятся здесь после работы с калькуляторами.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h2 class="h5 mb-3">Последние документы</h2>
+          {% if documents %}
+            <div class="list-group list-group-flush">
+              {% for document in documents %}
+                <div class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-center gap-3">
+                    <div class="min-w-0">
+                      <div class="fw-semibold text-truncate">{{ document.template.title }}</div>
+                      <small class="text-muted d-block">{{ document.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    <span class="badge text-bg-light text-nowrap">{{ document.template.slug }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-light mb-0">Сохранённые документы появятся здесь после генерации шаблона.</div>
           {% endif %}
         </div>
       </div>

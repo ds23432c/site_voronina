@@ -69,6 +69,7 @@ def profile_view(request):
 
     organizations = request.user.organizations.order_by("-created_at")
     calculations = request.user.calculator_calculations.order_by("-created_at")[:5]
+    documents = request.user.generated_documents.order_by("-created_at")[:5]
     return render(
         request,
         "accounts/profile.html",
@@ -76,6 +77,7 @@ def profile_view(request):
             "form": form,
             "organizations": organizations,
             "calculations": calculations,
+            "documents": documents,
         },
     )
 
@@ -84,11 +86,14 @@ def profile_view(request):
 def dashboard_view(request):
     organizations = request.user.organizations.order_by("-created_at")
     calculations = request.user.calculator_calculations.order_by("-created_at")[:5]
+    documents = request.user.generated_documents.order_by("-created_at")[:5]
     context = {
         "organizations": organizations,
         "calculations": calculations,
+        "documents": documents,
         "organization_count": organizations.count(),
         "calculation_count": request.user.calculator_calculations.count(),
+        "document_count": request.user.generated_documents.count(),
     }
     return render(request, "accounts/dashboard.html", context)
 
