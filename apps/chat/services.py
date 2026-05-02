@@ -59,11 +59,16 @@ def generate_reply(messages: list[dict]) -> str:
 
     try:
         access_token = _get_access_token()
+        client_id = settings.GIGACHAT_CLIENT_ID.strip() or str(uuid.uuid5(uuid.NAMESPACE_DNS, settings.SITE_NAME))
+
         response = httpx.post(
             f"{settings.GIGACHAT_BASE_URL.rstrip('/')}/v1/chat/completions",
             headers={
                 "Accept": "application/json",
                 "Authorization": f"Bearer {access_token}",
+                "X-Client-ID": client_id,
+                "X-Request-ID": str(uuid.uuid4()),
+                "X-Session-ID": str(uuid.uuid4()),
             },
             json={
                 "model": settings.GIGACHAT_MODEL,
