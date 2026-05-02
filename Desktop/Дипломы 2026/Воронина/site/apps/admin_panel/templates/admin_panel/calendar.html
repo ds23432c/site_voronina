@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-4 py-lg-5">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h1 class="h2 fw-bold mb-1">Календарь событий</h1>
+        <p class="text-secondary mb-0">Управляйте напоминаниями, сроками и рабочими событиями.</p>
+      </div>
+      <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-outline-secondary">К панели</a>
+    </div>
+
+    {% if model_missing %}
+      <div class="alert alert-warning">
+        Модель событий календаря ещё не подключена или не найдена в приложении.
+      </div>
+    {% else %}
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+              <h2 class="h5 mb-3">{% if edit_instance %}Редактировать событие{% else %}Новое событие{% endif %}</h2>
+              <form method="post" class="d-grid gap-3">
+                {% csrf_token %}
+                {% for field in form %}
+                  <div>
+                    {% if field.field.widget.input_type == "checkbox" %}
+                      <div class="form-check">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      </div>
+                    {% else %}
+                      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      {{ field }}
+                    {% endif %}
+                    {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                  </div>
+                {% endfor %}
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary">Сохранить</button>
+                  <a href="{% url 'admin_panel:calendar' %}" class="btn btn-outline-secondary">Очистить</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Событие</th>
+                    <th>Дата</th>
+                    <th>Описание</th>
+                    <th class="text-end">Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for event in events %}
+                    <tr>
+                      <td class="fw-semibold">{{ event.title }}</td>
+                      <td class="text-secondary">{{ event.date|default:"—" }}</td>
+                      <td class="text-secondary">{{ event.description|default:"—" }}</td>
+                      <td class="text-end">
+                        <a href="?event_id={{ event.object.pk }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-secondary py-4">Событий пока нет.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

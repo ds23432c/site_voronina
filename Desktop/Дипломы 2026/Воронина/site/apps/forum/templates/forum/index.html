@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-4 py-lg-5">
+  <div class="container">
+    <div class="row align-items-center g-4 mb-4">
+      <div class="col-lg-8">
+        <span class="badge text-bg-primary-subtle text-primary mb-3">Сообщество</span>
+        <h1 class="display-5 fw-bold mb-3">Форум БухПомощника</h1>
+        <p class="lead text-secondary mb-0">
+          Обменивайтесь практикой, задавайте вопросы по учёту, налогам, отчётности и работе с сервисом.
+        </p>
+      </div>
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <form method="get" class="d-grid gap-3">
+              <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Поиск по темам">
+              <select name="category" class="form-select">
+                <option value="">Все категории</option>
+                {% for category in categories %}
+                  <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+                    {{ category.name }} ({{ category.posts_count }})
+                  </option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-primary">Найти темы</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a class="btn btn-primary" href="{% url 'forum:create' %}">
+        <i class="bi bi-plus-circle me-1"></i>Новая тема
+      </a>
+      {% for category in categories|slice:":6" %}
+        <a class="btn btn-outline-secondary btn-sm" href="?category={{ category.slug }}">{{ category.name }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        {% for post in posts %}
+          <article class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                {% for category in post.categories.all %}
+                  <span class="badge rounded-pill text-bg-light border">{{ category.name }}</span>
+                {% empty %}
+                  <span class="badge rounded-pill text-bg-light border">Без категории</span>
+                {% endfor %}
+              </div>
+              <h2 class="h4 mb-2">
+                <a href="{{ post.get_absolute_url }}" class="text-decoration-none">{{ post.title }}</a>
+              </h2>
+              <p class="text-secondary mb-3">{{ post.content|truncatechars:260 }}</p>
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 text-secondary small">
+                <div>
+                  <i class="bi bi-person me-1"></i>{{ post.author }}
+                  <span class="mx-2">•</span>
+                  <i class="bi bi-calendar3 me-1"></i>{{ post.created_at|date:"d.m.Y" }}
+                </div>
+                <div class="d-flex gap-3">
+                  <span><i class="bi bi-eye me-1"></i>{{ post.views_count }}</span>
+                  <span><i class="bi bi-heart me-1"></i>{{ post.likes_count }}</span>
+                  <span><i class="bi bi-chat-dots me-1"></i>{{ post.comments_count }}</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        {% empty %}
+          <div class="alert alert-light border">Пока нет тем по вашему запросу.</div>
+        {% endfor %}
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm sticky-lg-top" style="top: 96px;">
+          <div class="card-body">
+            <h3 class="h5 mb-3">Популярные темы</h3>
+            <div class="list-group list-group-flush">
+              {% for item in top_posts %}
+                <a href="{{ item.get_absolute_url }}" class="list-group-item list-group-item-action px-0">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-semibold">{{ item.title|truncatechars:48 }}</span>
+                    <span class="text-secondary small">{{ item.likes_count }}</span>
+                  </div>
+                  <div class="small text-secondary">{{ item.author }} · {{ item.created_at|date:"d.m.Y" }}</div>
+                  <div class="small text-secondary"><i class="bi bi-chat-dots me-1"></i>{{ item.comments_count }} комментариев</div>
+                </a>
+              {% empty %}
+                <div class="text-secondary">Пока нет популярных тем.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

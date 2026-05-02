@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Панель управления · БухПомощник{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <p class="text-uppercase text-primary fw-semibold mb-1">Личный кабинет</p>
+      <h1 class="h3 mb-0">Добро пожаловать, {{ user.display_name }}!</h1>
+      <p class="text-muted mb-0">Здесь собраны быстрые ссылки и сводка по вашим данным.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'accounts:organization_form' %}" class="btn btn-primary">Добавить организацию</a>
+      <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Редактировать профиль</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <div class="mb-4">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="text-muted small text-uppercase">Организации</div>
+          <div class="display-6 fw-semibold">{{ organization_count }}</div>
+          <p class="text-muted mb-0">Активные карточки компаний и ИП.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="text-muted small text-uppercase">Расчёты</div>
+          <div class="display-6 fw-semibold">{{ calculation_count }}</div>
+          <p class="text-muted mb-0">Сохранённые калькуляции и результаты.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="text-muted small text-uppercase">Профиль</div>
+          <div class="display-6 fw-semibold">✓</div>
+          <p class="text-muted mb-0">Почта, телефон и настройки учётной записи.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h2 class="h5 mb-3">Ваши организации</h2>
+          {% if organizations %}
+            <div class="list-group list-group-flush">
+              {% for organization in organizations %}
+                <div class="list-group-item px-0">
+                  <div class="fw-semibold">{{ organization.name }}</div>
+                  <small class="text-muted">{{ organization.inn }} · {{ organization.get_tax_system_display }}</small>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-light mb-0">Создайте первую организацию, чтобы быстро заполнять документы и расчёты.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h2 class="h5 mb-3">Последние расчёты</h2>
+          {% if calculations %}
+            <div class="list-group list-group-flush">
+              {% for calculation in calculations %}
+                <div class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-semibold">{{ calculation.title }}</div>
+                      <small class="text-muted">{{ calculation.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    <span class="badge text-bg-light">{{ calculation.calculation_type|default:"Расчёт" }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-light mb-0">Сохранённые расчёты появятся здесь после работы с калькуляторами.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

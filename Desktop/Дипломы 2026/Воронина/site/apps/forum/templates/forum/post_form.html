@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-4 py-lg-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <h1 class="h3 mb-4">
+              {% if mode == "edit" %}Редактировать тему{% else %}Создать тему{% endif %}
+            </h1>
+            <form method="post" class="d-grid gap-3">
+              {% csrf_token %}
+              <div>
+                <label class="form-label" for="{{ form.title.id_for_label }}">Заголовок</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors|striptags }}</div>{% endif %}
+              </div>
+              <div>
+                <label class="form-label" for="{{ form.content.id_for_label }}">Содержание</label>
+                {{ form.content }}
+                {% if form.content.errors %}<div class="text-danger small">{{ form.content.errors|striptags }}</div>{% endif %}
+              </div>
+              <div>
+                <label class="form-label" for="{{ form.categories.id_for_label }}">Категории</label>
+                {{ form.categories }}
+                {% if form.categories.errors %}<div class="text-danger small">{{ form.categories.errors|striptags }}</div>{% endif %}
+              </div>
+              <div class="form-check">
+                {{ form.is_published }}
+                <label class="form-check-label" for="{{ form.is_published.id_for_label }}">Опубликовать сразу</label>
+              </div>
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+              {% endif %}
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary">{% if mode == "edit" %}Сохранить{% else %}Опубликовать{% endif %}</button>
+                <a href="{% url 'forum:index' %}" class="btn btn-outline-secondary">Отмена</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
