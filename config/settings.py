@@ -33,7 +33,9 @@ MYSQL_NAME = os.getenv("MYSQLDATABASE", "").strip()
 MYSQL_USER = os.getenv("MYSQLUSER", "").strip()
 MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD", "")
 
-if MYSQL_HOST:
+USE_MYSQL = bool(MYSQL_HOST) and MYSQL_HOST not in {"localhost", "127.0.0.1", "::1"}
+
+if USE_MYSQL:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
