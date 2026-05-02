@@ -15,7 +15,9 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 
 def env_list(name: str, default: str = "") -> list[str]:
-    raw_value = os.getenv(name, default)
+    raw_value = os.getenv(name)
+    if raw_value is None or not raw_value.strip():
+        raw_value = default
     return [item.strip() for item in raw_value.split(",") if item.strip()]
 
 
@@ -24,7 +26,7 @@ DEBUG = env_bool("DEBUG", False)
 
 SITE_NAME = "БухПомощник"
 
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,.railway.app")
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "*")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,https://*.railway.app")
 
 MYSQL_HOST = os.getenv("MYSQLHOST", "").strip()
