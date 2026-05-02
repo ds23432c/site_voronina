@@ -1,8 +1,11 @@
+import logging
 import uuid
 
 import httpx
 from django.conf import settings
 
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT_RU = (
     "Ты — БухПомощник, вежливый и профессиональный ассистент по бухгалтерии, налогам и документообороту "
@@ -17,19 +20,23 @@ def _get_access_token() -> str:
     if not settings.GIGACHAT_API_KEY:
         raise ValueError("GIGACHAT_API_KEY is not configured.")
 
-    response = httpx.post(
-        settings.GIGACHAT_TOKEN_URL,
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "RqUID": str(uuid.uuid4()),
-            "Authorization": f"Basic {settings.GIGACHAT_API_KEY}",
-        },
-        data={"scope": settings.GIGACHAT_SCOPE},
-        timeout=30.0,
-        verify=False,
-    )
-    response.raise_for_status()
+    try:
+        response = httpx.post(
+            settings.GIGACHAT_TOKEN_URL,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+                "RqUID": str(uuid.uuid4()),
+                "Authorization": f"Basic {settings.GIGACHAT_API_KEY}",
+            },
+            data={"scope": settings.GIGACHAT_SCOPE},
+            timeout=30.0,
+            verify=False,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError:
+        logger.exception("Failed to get GigaChat access token")
+        raise
 
     payload = response.json()
     access_token = payload.get("access_token")
@@ -83,5 +90,26 @@ def generate_reply(messages: list[dict]) -> str:
 
         reply_text = _extract_reply(response.json())
         return reply_text or "Не удалось сформировать ответ. Попробуйте сформулировать вопрос иначе."
-    except (httpx.HTTPError, ValueError):
+    except httpx.HTTPStatusError as exc:
+        logger.exception(
+            "GigaChat HTTP error: status=%s body=%s",
+            exc.response.status_code,
+            exc.response.text,
+        )
+        if getattr(settings, "DEBUG", False):
+            return f"GigaChat HTTP error: status={exc.response.status_code} body={exc.response.text}"
+        if exc.response.status_code in {401, 403}:
+            return "Не удалось авторизоваться в GigaChat. Проверьте GIGACHAT_API_KEY и GIGACHAT_CLIENT_ID."
+        if exc.response.status_code == 429:
+            return "GigaChat временно ограничил запросы. Попробуйте позже."
+        return "Сервис ИИ временно недоступен. Попробуйте повторить запрос позже."
+    except httpx.RequestError as exc:
+        logger.exception("GigaChat request failed: %s", exc)
+        if getattr(settings, "DEBUG", False):
+            return f"GigaChat request failed: {exc}"
+        return "Сервис ИИ временно недоступен. Попробуйте повторить запрос позже."
+    except ValueError as exc:
+        logger.exception("GigaChat configuration error: %s", exc)
+        if getattr(settings, "DEBUG", False):
+            return f"GigaChat configuration error: {exc}"
         return "Сервис ИИ временно недоступен. Попробуйте повторить запрос позже."
