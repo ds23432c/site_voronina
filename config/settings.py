@@ -26,7 +26,7 @@ DEBUG = env_bool("DEBUG", False)
 
 SITE_NAME = "БухПомощник"
 
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "*")
+ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,https://*.railway.app")
 
 MYSQL_HOST = os.getenv("MYSQLHOST", "").strip()
