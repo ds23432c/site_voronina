@@ -93,12 +93,15 @@
             <div class="list-group list-group-flush">
               {% for calculation in calculations %}
                 <div class="list-group-item px-0">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="min-w-0">
                       <div class="fw-semibold">{{ calculation.title }}</div>
-                      <small class="text-muted">{{ calculation.created_at|date:"d.m.Y H:i" }}</small>
+                      {% if calculation.result_summary %}
+                        <small class="text-muted d-block text-truncate">{{ calculation.result_summary }}</small>
+                      {% endif %}
+                      <small class="text-muted d-block">{{ calculation.created_at|date:"d.m.Y H:i" }}</small>
                     </div>
-                    <span class="badge text-bg-light">{{ calculation.calculation_type|default:"Расчёт" }}</span>
+                    <span class="badge text-bg-light text-nowrap">{{ calculation.get_calculation_type_display }}</span>
                   </div>
                 </div>
               {% endfor %}

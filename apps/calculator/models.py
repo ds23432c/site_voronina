@@ -33,3 +33,26 @@ class Calculation(models.Model):
 
     def __str__(self) -> str:
         return f"{self.get_calculation_type_display()} #{self.pk}"
+
+    @property
+    def title(self) -> str:
+        return self.get_calculation_type_display()
+
+    @property
+    def result_summary(self) -> str:
+        if not isinstance(self.result_data, dict) or not self.result_data:
+            return ""
+        preferred_keys = (
+            "tax",
+            "total",
+            "net_salary",
+            "employer_cost",
+            "penalty",
+            "calculated_tax",
+        )
+        for key in preferred_keys:
+            value = self.result_data.get(key)
+            if value not in (None, "", [], {}):
+                return str(value)
+        first_value = next(iter(self.result_data.values()))
+        return str(first_value)

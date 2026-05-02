@@ -68,7 +68,7 @@ def profile_view(request):
         return redirect("accounts:profile")
 
     organizations = request.user.organizations.order_by("-created_at")
-    calculations = request.user.calculations.order_by("-created_at")[:5]
+    calculations = request.user.calculator_calculations.order_by("-created_at")[:5]
     return render(
         request,
         "accounts/profile.html",
@@ -83,12 +83,12 @@ def profile_view(request):
 @login_required
 def dashboard_view(request):
     organizations = request.user.organizations.order_by("-created_at")
-    calculations = request.user.calculations.order_by("-created_at")[:5]
+    calculations = request.user.calculator_calculations.order_by("-created_at")[:5]
     context = {
         "organizations": organizations,
         "calculations": calculations,
         "organization_count": organizations.count(),
-        "calculation_count": request.user.calculations.count(),
+        "calculation_count": request.user.calculator_calculations.count(),
     }
     return render(request, "accounts/dashboard.html", context)
 
