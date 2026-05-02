@@ -27,6 +27,7 @@ def _get_access_token() -> str:
         },
         data={"scope": settings.GIGACHAT_SCOPE},
         timeout=30.0,
+        verify=False,
     )
     response.raise_for_status()
 
@@ -71,6 +72,7 @@ def generate_reply(messages: list[dict]) -> str:
                 "max_tokens": 800,
             },
             timeout=60.0,
+            verify=False,
         )
         response.raise_for_status()
 

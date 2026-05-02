@@ -155,7 +155,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@buhpomoshnik.ru")
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
-GIGACHAT_API_KEY = os.getenv("GIGACHAT_API_KEY", "")
+GIGACHAT_API_KEY = os.getenv("GIGACHAT_API_KEY", os.getenv("ANTHROPIC_API_KEY", ""))
 GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat")
 GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
 GIGACHAT_BASE_URL = os.getenv("GIGACHAT_BASE_URL", "https://gigachat.devices.sberbank.ru/api/")
