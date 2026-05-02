@@ -1,7 +1,8 @@
-import anthropic
+import uuid
+
+import httpx
 from django.conf import settings
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
 SYSTEM_PROMPT_RU = (
     "Ты — БухПомощник, вежливый и профессиональный ассистент по бухгалтерии, налогам и документообороту "
@@ -12,23 +13,68 @@ SYSTEM_PROMPT_RU = (
 )
 
 
+def _get_access_token() -> str:
+    if not settings.GIGACHAT_API_KEY:
+        raise ValueError("GIGACHAT_API_KEY is not configured.")
+
+    response = httpx.post(
+        settings.GIGACHAT_TOKEN_URL,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "RqUID": str(uuid.uuid4()),
+            "Authorization": f"Basic {settings.GIGACHAT_API_KEY}",
+        },
+        data={"scope": settings.GIGACHAT_SCOPE},
+        timeout=30.0,
+    )
+    response.raise_for_status()
+
+    payload = response.json()
+    access_token = payload.get("access_token")
+    if not access_token:
+        raise ValueError("GigaChat token response does not contain access_token.")
+
+    return access_token
+
+
+def _extract_reply(payload: dict) -> str:
+    choices = payload.get("choices") or []
+    if not choices:
+        return ""
+
+    message = choices[0].get("message") or {}
+    for key in ("content", "text"):
+        content = message.get(key)
+        if isinstance(content, str) and content.strip():
+            return content.strip()
+
+    return ""
+
+
 def generate_reply(messages: list[dict]) -> str:
     if not messages:
         return "Опишите вопрос подробнее, и я помогу с расчетом, отчетностью или документом."
 
     try:
-        response = client.messages.create(
-            model=getattr(settings, "ANTHROPIC_MODEL", "claude-3-haiku-20240307"),
-            max_tokens=800,
-            temperature=0.3,
-            system=SYSTEM_PROMPT_RU,
-            messages=messages,
+        access_token = _get_access_token()
+        response = httpx.post(
+            f"{settings.GIGACHAT_BASE_URL.rstrip('/')}/v1/chat/completions",
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            },
+            json={
+                "model": settings.GIGACHAT_MODEL,
+                "messages": messages,
+                "temperature": 0.3,
+                "max_tokens": 800,
+            },
+            timeout=60.0,
         )
-        parts = []
-        for item in getattr(response, "content", []):
-            text = getattr(item, "text", None)
-            if text:
-                parts.append(text)
-        return "\n".join(parts).strip() or "Не удалось сформировать ответ. Попробуйте сформулировать вопрос иначе."
-    except Exception:
+        response.raise_for_status()
+
+        reply_text = _extract_reply(response.json())
+        return reply_text or "Не удалось сформировать ответ. Попробуйте сформулировать вопрос иначе."
+    except (httpx.HTTPError, ValueError):
         return "Сервис ИИ временно недоступен. Попробуйте повторить запрос позже."
