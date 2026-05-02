@@ -8,6 +8,8 @@ from django.contrib.messages import constants as message_constants
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
+os.environ["GIGACHAT_BASE_URL"] = "https://gigachat.devices.sberbank.ru/api/"
+os.environ["GIGACHAT_TOKEN_URL"] = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 
 
 def env_bool(name: str, default: bool = False) -> bool:
@@ -159,8 +161,8 @@ GIGACHAT_API_KEY = os.getenv("GIGACHAT_API_KEY", os.getenv("ANTHROPIC_API_KEY", 
 GIGACHAT_CLIENT_ID = os.getenv("GIGACHAT_CLIENT_ID", "")
 GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat")
 GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
-GIGACHAT_BASE_URL = os.getenv("GIGACHAT_BASE_URL", "https://gigachat.devices.sberbank.ru/api/")
-GIGACHAT_TOKEN_URL = os.getenv("GIGACHAT_TOKEN_URL", "https://ngw.devices.sberbank.ru:9443/api/v2/oauth")
+GIGACHAT_BASE_URL = "https://gigachat.devices.sberbank.ru/api/"
+GIGACHAT_TOKEN_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
