@@ -1,8 +1,9 @@
 import uuid
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from .forms import ChatMessageForm
@@ -66,16 +67,31 @@ def index(request):
 @login_required
 def history(request):
     chat_session = _get_chat_session(request)
-    messages = chat_session.messages.order_by("created_at")
+    messages_qs = chat_session.messages.order_by("created_at")
     return render(
         request,
         "chat/history.html",
         {
             "title": "История чата",
             "chat_session": chat_session,
-            "messages": messages,
+            "messages": messages_qs,
         },
     )
+
+
+def clear_history(request):
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "Метод не поддерживается."}, status=405)
+
+    chat_session = _get_chat_session(request)
+    chat_session.messages.all().delete()
+
+    if not request.user.is_authenticated:
+        chat_session.delete()
+        request.session.pop("chat_session_id", None)
+
+    messages.success(request, "История чата очищена.")
+    return redirect("chat:index")
 
 
 def send_message_api(request):
