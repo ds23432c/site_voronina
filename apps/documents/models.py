@@ -68,4 +68,4 @@ class GeneratedDocument(models.Model):
 
     @property
     def filename(self) -> str:
-        return f"{self.template.slug}.txt"
+        return f"{self.template.slug}.docx"

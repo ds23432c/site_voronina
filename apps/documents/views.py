@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from .forms import DocumentFillForm
 from .models import DocumentTemplate, GeneratedDocument
+from .services import build_docx_bytes
 
 
 def _jsonify(value):
@@ -97,8 +98,12 @@ def generated(request):
         raise Http404("Документ не найден")
 
     if request.GET.get("download") == "1":
-        filename = document.filename if document else f"{template.slug}.txt"
-        response = HttpResponse(rendered_text, content_type="text/plain; charset=utf-8")
+        filename = document.filename if document else f"{template.slug}.docx"
+        docx_bytes = build_docx_bytes(template.title, rendered_text)
+        response = HttpResponse(
+            docx_bytes,
+            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response
 
