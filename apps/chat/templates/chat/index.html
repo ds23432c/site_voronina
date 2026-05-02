@@ -28,7 +28,7 @@
             {% for message in messages %}
               <div class="mb-3 d-flex {% if message.role == 'assistant' %}justify-content-start{% else %}justify-content-end{% endif %}">
                 <div class="p-3 rounded-4 {% if message.role == 'assistant' %}bg-white border{% else %}bg-primary text-white{% endif %}" style="max-width: 80%;">
-                  <div class="small opacity-75 mb-1">{{ message.get_role_display }}</div>
+                  {# Убрана подпись роли #}
                   <div style="white-space: pre-wrap;">{{ message.content }}</div>
                 </div>
               </div>
@@ -98,15 +98,10 @@
     inner.className = 'p-3 rounded-4 ' + (role === 'assistant' ? 'bg-white border' : 'bg-primary text-white');
     inner.style.maxWidth = '80%';
 
-    const roleLine = document.createElement('div');
-    roleLine.className = 'small opacity-75 mb-1';
-    roleLine.textContent = role === 'assistant' ? 'БухПомощник' : 'Вы';
-
+    // Убрана подпись роли
     const body = document.createElement('div');
     body.style.whiteSpace = 'pre-wrap';
     body.textContent = text;
-
-    inner.appendChild(roleLine);
     inner.appendChild(body);
     wrap.appendChild(inner);
     return wrap;
