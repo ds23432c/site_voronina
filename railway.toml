@@ -1,2 +1,6 @@
 [build]
-builder = "DOCKERFILE"
+builder = "NIXPACKS"
+buildCommand = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+
+[deploy]
+startCommand = "python manage.py migrate --noinput && python manage.py ensure_superuser && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT"

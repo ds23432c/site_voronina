@@ -72,7 +72,7 @@ class User(AbstractUser):
         default=TaxSystem.USN_6,
     )
     phone = models.CharField("телефон", max_length=20, blank=True)
-    avatar = models.URLField("аватар", blank=True, null=True)
+    avatar = models.URLField("аватар", blank=True)
 
     objects = UserManager()
 

@@ -23,13 +23,12 @@ class KnowledgeArticle(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = (slugify(self.title) or "article")[:250]
+            base_slug = slugify(self.title) or "article"
             slug = base_slug
             index = 1
             while KnowledgeArticle.objects.filter(slug=slug).exclude(pk=self.pk).exists():
                 index += 1
-                suffix = f"-{index}"
-                slug = f"{base_slug[:255 - len(suffix)]}{suffix}"
+                slug = f"{base_slug}-{index}"
             self.slug = slug
         super().save(*args, **kwargs)
 
