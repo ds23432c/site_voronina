@@ -38,7 +38,7 @@ class ForumPost(models.Model):
         verbose_name="Автор",
     )
     title = models.CharField("Заголовок", max_length=255)
-    slug = models.SlugField("Slug", max_length=280, unique=True, blank=True)
+    slug = models.SlugField("Slug", max_length=255, unique=True, blank=True)
     content = models.TextField("Содержание")
     categories = models.ManyToManyField(
         ForumCategory,
@@ -59,12 +59,13 @@ class ForumPost(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.title) or "post"
+            base_slug = (slugify(self.title) or "post")[:250]
             slug = base_slug
             index = 1
             while ForumPost.objects.filter(slug=slug).exclude(pk=self.pk).exists():
                 index += 1
-                slug = f"{base_slug}-{index}"
+                suffix = f"-{index}"
+                slug = f"{base_slug[:255 - len(suffix)]}{suffix}"
             self.slug = slug
         super().save(*args, **kwargs)
 
